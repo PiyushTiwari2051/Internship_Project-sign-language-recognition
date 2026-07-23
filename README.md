@@ -40,7 +40,7 @@ This project presents a **real-time, end-to-end Sign Language Recognition (SLR) 
 The data pipeline replaces heavy raw video frames with normalized 3D keypoint vectors, ensuring complete independence from signer background, clothing, or camera distance.
 
 <div align="center">
-  <img src="app/static/img/flowchart.png" alt="Real-Time Sign Language Recognition Architecture Flowchart" width="700" style="border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.12);" />
+  <img src="app/static/img/flowchart_v2.png" alt="Real-Time Sign Language Recognition Architecture Flowchart" width="720" style="border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.12);" />
   <p><em>Figure 2: Complete End-to-End System Methodology & Data Processing Pipeline Flowchart.</em></p>
 </div>
 
