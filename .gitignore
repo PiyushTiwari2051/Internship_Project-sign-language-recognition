@@ -4,6 +4,10 @@ __pycache__/
 *.pyc
 *.pyo
 *.webm
+*.pptx
+build_*.py
+generate_ppt.py
+create_demo_gif.py
 .env
 .DS_Store
 .idea/
