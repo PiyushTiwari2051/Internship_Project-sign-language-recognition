@@ -1,12 +1,6 @@
+#!/usr/bin/env bash
 # run.sh
-# This script sets up the environment and starts the Flask application and Celery worker.
+# Launcher script for Real-Time Sign Language Recognition System
 
-# start flask application
-echo "Starting Flask application..."
-flask run &
-
-# start celery worker
-echo "Starting Celery worker..."
-celery -A celery_worker.celery worker --loglevel=info
-
-wait
+echo "Starting Sign Language Recognition System Native Tkinter Desktop Application..."
+python3 cv2main.py
