@@ -17,8 +17,8 @@
 ## 📸 System Demonstration
 
 <div align="center">
-  <img src="app/static/img/demo_working.gif" alt="Real-Time Sign Language Recognition Demo" width="800" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
-  <p><em>Figure 1: Live webcam viewport featuring MediaPipe hand & pose skeleton tracking, predicted gesture hero display, top-3 confidence progress meters, active hand detection gating, and Sign-to-Speech audio synthesis.</em></p>
+  <img src="app/static/img/demo_hd_white.gif" alt="Real-Time Sign Language Recognition HD Demo" width="840" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+  <p><em>Figure 1: High-Definition live webcam viewport featuring MediaPipe landmark tracking, predicted gesture hero display, top-3 confidence progress meters, active hand detection gating, and Sign-to-Speech audio synthesis.</em></p>
 </div>
 
 ---
