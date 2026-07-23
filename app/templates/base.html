@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <title>Real-Time Sign Language AI System</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5 CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <!-- Boxicons -->
+  <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="dark">
+  <nav class="sidebar">
+    <header>
+      <div class="image-text">
+        <span class="image">
+          <img src="{{ url_for('static', filename='img/logo.png') }}" alt="logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2922/2922506.png'">
+        </span>
+
+        <div class="text logo-text">
+          <span class="name">Gesture AI</span>
+          <span class="profession">Sign Language Recognizer</span>
+        </div>
+      </div>
+
+      <i class='bx bx-chevron-right toggle'></i>
+    </header>
+
+    <div class="menu-bar">
+      <div class="menu">
+        <ul class="menu-links p-0 mt-3">
+          <!-- Live Dashboard -->
+          <li class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+            <a href="{{ url_for('index') }}">
+              <i class='bx bx-play-circle icon'></i>
+              <span class="text nav-text">Live Dashboard</span>
+            </a>
+          </li>
+
+          <!-- Dataset Management Section -->
+          <li class="nav-link {% if request.endpoint in ['record_page', 'import_page', 'gallery'] %}active{% endif %}">
+            <a href="#wordDatasetCollapse" data-bs-toggle="collapse" role="button"
+              aria-expanded="{% if request.endpoint in ['record_page', 'import_page', 'gallery'] %}true{% else %}false{% endif %}"
+              aria-controls="wordDatasetCollapse">
+              <i class='bx bx-folder-open icon'></i>
+              <span class="text nav-text">Dataset Manager</span>
+            </a>
+          </li>
+
+          <div class="collapse {% if request.endpoint in ['record_page', 'import_page', 'gallery'] %}show{% endif %}"
+            id="wordDatasetCollapse">
+            <ul class="nav flex-column ms-2">
+              <li class="nav-link {% if request.endpoint == 'record_page' %}active{% endif %}">
+                <a href="{{ url_for('record_page') }}">
+                  <i class='bx bx-video icon'></i>
+                  <span class="text nav-text">Record Video</span>
+                </a>
+              </li>
+              <li class="nav-link {% if request.endpoint == 'import_page' %}active{% endif %}">
+                <a href="{{ url_for('import_page') }}">
+                  <i class='bx bx-import icon'></i>
+                  <span class="text nav-text">Import Video</span>
+                </a>
+              </li>
+              <li class="nav-link {% if request.endpoint == 'gallery' %}active{% endif %}">
+                <a href="{{ url_for('gallery') }}">
+                  <i class='bx bx-grid-alt icon'></i>
+                  <span class="text nav-text">Dataset Gallery</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </ul>
+      </div>
+
+      <!-- Footer Mode Toggle -->
+      <div class="bottom-content">
+        <li class="mode">
+          <div class="sun-moon">
+            <i class='bx bx-moon icon moon'></i>
+            <i class='bx bx-sun icon sun'></i>
+          </div>
+          <span class="mode-text text">Dark Theme</span>
+        </li>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content View -->
+  <section class="home">
+    <div class="container-fluid px-4 py-4">
+      {% block content %}{% endblock %}
+    </div>
+  </section>
+
+  {% block extra_scripts %}
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/chartjs.min.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Sidebar toggle functionality
+    const body = document.querySelector('body'),
+          sidebar = body.querySelector('nav.sidebar'),
+          toggle = body.querySelector(".toggle");
+          
+    if (toggle) {
+      toggle.addEventListener("click", () => {
+        sidebar.classList.toggle("close");
+      });
+    }
+  </script>
+  {% endblock %}
+</body>
+</html>

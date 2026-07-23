@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header & Stats Banner -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-white" style="letter-spacing: -0.5px;">Real-Time Sign Language Recognition</h2>
+            <p class="text-muted mb-0">AI-powered gesture classification using MediaPipe feature extraction & LSTM sequence modeling</p>
+        </div>
+        <div>
+            <span class="badge px-3 py-2" style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #8b5cf6; font-size: 0.85rem; border-radius: 30px;">
+                <i class='bx bx-chip me-1'></i> Neural Engine: Active
+            </span>
+        </div>
+    </div>
+
+    <!-- Quick System Metrics Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-box">
+                <div class="stat-icon purple">
+                    <i class='bx bx-brain'></i>
+                </div>
+                <div>
+                    <div class="stat-value">LSTM Model</div>
+                    <div class="stat-label">Architecture</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-box">
+                <div class="stat-icon cyan">
+                    <i class='bx bx-hand'></i>
+                </div>
+                <div>
+                    <div class="stat-value">MediaPipe</div>
+                    <div class="stat-label">Landmark Extractor</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-box">
+                <div class="stat-icon green">
+                    <i class='bx bx-timer'></i>
+                </div>
+                <div>
+                    <div class="stat-value">~15 FPS</div>
+                    <div class="stat-label">Sampling Rate</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-box">
+                <div class="stat-icon purple">
+                    <i class='bx bx-slider-alt'></i>
+                </div>
+                <div>
+                    <div class="stat-value">0.5 Seconds</div>
+                    <div class="stat-label">Window Size</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Live Video Feed Column -->
+        <div class="col-lg-8">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class='bx bx-webcam text-primary me-2'></i> Live Webcam Vision Stream
+                    </h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <span id="fpsBadge" class="badge bg-dark text-muted border border-secondary" style="font-size: 0.75rem;">640x480</span>
+                    </div>
+                </div>
+                <div class="card-body text-center p-3">
+                    <div class="camera-container">
+                        <!-- HUD Status Badge -->
+                        <div class="camera-status-badge">
+                            <div id="statusDot" class="status-dot inactive"></div>
+                            <span id="cameraStatusText">CAMERA OFF</span>
+                        </div>
+                        <img id="videoFeed" src="{{ url_for('video_feed') }}" alt="Live Feed">
+                    </div>
+                    
+                    <div class="mt-4 d-flex justify-content-center gap-3">
+                        <button id="toggleBtn" class="btn btn-glow-primary" onclick="toggleRecognition()" disabled>
+                            <i class='bx bx-loader-alt bx-spin me-1'></i> Initializing System...
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Live AI Prediction Column -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class='bx bx-pulse text-purple me-2'></i> AI Inference Output
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Hero Top-1 Prediction Card -->
+                    <div class="mb-4">
+                        <div class="text-uppercase text-muted fw-bold mb-2" style="font-size: 0.75rem; letter-spacing: 1px;">Top Predicted Gesture</div>
+                        <div class="prediction-hero-card">
+                            <div id="heroPrediction" class="prediction-title text-truncate">
+                                Waiting...
+                            </div>
+                            <div id="heroSubtitle" class="text-muted mt-2" style="font-size: 0.85rem;">
+                                Click "Start Recognition" to stream live predictions
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Top 3 Probability Breakdown -->
+                    <div>
+                        <div class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">Top 3 Confidence Scores</div>
+                        <div id="top3Predictions">
+                            <!-- Slot 1 -->
+                            <div class="prediction-item">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="prediction-item-label">1. <span class="prediction-label text-white ms-1">-</span></span>
+                                    <span class="confidence-chip bg-primary text-white confidence-badge">0.0%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-gradient-1" role="progressbar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <!-- Slot 2 -->
+                            <div class="prediction-item">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="prediction-item-label">2. <span class="prediction-label text-white ms-1">-</span></span>
+                                    <span class="confidence-chip bg-info text-white confidence-badge">0.0%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-gradient-2" role="progressbar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <!-- Slot 3 -->
+                            <div class="prediction-item">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="prediction-item-label">3. <span class="prediction-label text-white ms-1">-</span></span>
+                                    <span class="confidence-chip bg-success text-white confidence-badge">0.0%</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-gradient-3" role="progressbar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Guidelines -->
+            <div class="card">
+                <div class="card-header py-3">
+                    <h6 class="card-title mb-0" style="font-size: 0.95rem;">
+                        <i class='bx bx-info-circle text-info me-2'></i> Optimal Recognition Tips
+                    </h6>
+                </div>
+                <div class="card-body p-3" style="font-size: 0.85rem;">
+                    <ul class="mb-0 ps-3 text-muted">
+                        <li class="mb-2">Center your upper body and hands in the webcam frame</li>
+                        <li class="mb-2">Ensure uniform lighting and plain background</li>
+                        <li class="mb-2">Perform signs smoothly over ~2-3 seconds</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isRunning = false;
+    let predictionInterval = null;
+    let isToggling = false;
+    
+    function updateButtonState() {
+        const btn = document.getElementById('toggleBtn');
+        const statusDot = document.getElementById('statusDot');
+        const cameraStatusText = document.getElementById('cameraStatusText');
+        
+        btn.disabled = false;
+        
+        if (isRunning) {
+            btn.innerHTML = '<i class="bx bx-stop-circle me-1"></i> Stop Recognition';
+            btn.className = 'btn btn-glow-danger';
+            statusDot.className = 'status-dot';
+            cameraStatusText.textContent = 'STREAMING LIVE';
+        } else {
+            btn.innerHTML = '<i class="bx bx-play-circle me-1"></i> Start Recognition';
+            btn.className = 'btn btn-glow-primary';
+            statusDot.className = 'status-dot inactive';
+            cameraStatusText.textContent = 'CAMERA OFF';
+        }
+    }
+    
+    function toggleRecognition() {
+        if (isToggling) return;
+        
+        isToggling = true;
+        const btn = document.getElementById('toggleBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Processing...';
+        
+        const action = isRunning ? 'stop' : 'start';
+        
+        fetch('/toggle_recognition', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ action: action })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                isRunning = (action === 'start');
+                updateButtonState();
+                
+                if (isRunning) {
+                    startPredictionUpdates();
+                } else {
+                    stopPredictionUpdates();
+                }
+            } else {
+                alert('Camera Error: ' + (data.message || 'Unable to open camera feed.'));
+                updateButtonState();
+            }
+        })
+        .catch(error => {
+            console.error('Error toggling recognition:', error);
+            alert('Error connecting to server: ' + error.message);
+            updateButtonState();
+        })
+        .finally(() => {
+            isToggling = false;
+        });
+    }
+    
+    function updatePredictions() {
+        fetch('/current_predictions')
+            .then(response => response.json())
+            .then(data => {
+                const heroPrediction = document.getElementById('heroPrediction');
+                const heroSubtitle = document.getElementById('heroSubtitle');
+                
+                if (data.status === 'waiting') {
+                    heroPrediction.textContent = 'Analyzing...';
+                    heroSubtitle.textContent = 'Gathering video frames (~5 windows required)';
+                    updateTop3Display([]);
+                } else if (data.status === 'success') {
+                    heroPrediction.textContent = data.current_prediction || 'Detecting...';
+                    heroSubtitle.textContent = 'Real-time gesture prediction confidence';
+                    updateTop3Display(data.top3 || []);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching predictions:', error);
+            });
+    }
+    
+    function updateTop3Display(predictions) {
+        const container = document.getElementById('top3Predictions');
+        const predictionDivs = container.querySelectorAll('.prediction-item');
+        
+        predictions.forEach((pred, index) => {
+            if (index < 3) {
+                const div = predictionDivs[index];
+                const label = div.querySelector('.prediction-label');
+                const badge = div.querySelector('.confidence-badge');
+                const progressBar = div.querySelector('.progress-bar');
+                
+                const confVal = typeof pred.confidence === 'number' ? pred.confidence : parseFloat(pred.confidence || 0);
+                
+                label.textContent = pred.label || '-';
+                badge.textContent = `${confVal.toFixed(1)}%`;
+                progressBar.style.width = `${Math.min(100, Math.max(0, confVal))}%`;
+            }
+        });
+        
+        for (let i = predictions.length; i < 3; i++) {
+            const div = predictionDivs[i];
+            const label = div.querySelector('.prediction-label');
+            const badge = div.querySelector('.confidence-badge');
+            const progressBar = div.querySelector('.progress-bar');
+            
+            label.textContent = '-';
+            badge.textContent = '0.0%';
+            progressBar.style.width = '0%';
+        }
+    }
+    
+    function startPredictionUpdates() {
+        if (!predictionInterval) {
+            predictionInterval = setInterval(updatePredictions, 400);
+        }
+        updatePredictions();
+    }
+    
+    function stopPredictionUpdates() {
+        if (predictionInterval) {
+            clearInterval(predictionInterval);
+            predictionInterval = null;
+        }
+        document.getElementById('heroPrediction').textContent = 'Stopped';
+        document.getElementById('heroSubtitle').textContent = 'Camera recognition inactive';
+        updateTop3Display([]);
+    }
+    
+    function checkInitialStatus() {
+        fetch('/recognition_status')
+            .then(response => response.json())
+            .then(data => {
+                isRunning = !!data.is_running;
+                updateButtonState();
+                
+                if (isRunning) {
+                    startPredictionUpdates();
+                }
+            })
+            .catch(error => {
+                console.error('Error checking status:', error);
+                updateButtonState();
+            });
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        checkInitialStatus();
+    });
+    
+    window.addEventListener('beforeunload', function() {
+        if (predictionInterval) {
+            clearInterval(predictionInterval);
+        }
+    });
+</script>
+{% endblock %}

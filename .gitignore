@@ -1,0 +1,11 @@
+venv/
+Real-Time-SLR/
+__pycache__/
+*.pyc
+*.pyo
+*.webm
+.env
+.DS_Store
+.idea/
+.vscode/
+videos/
