@@ -422,7 +422,17 @@ class SignLanguageDesktopApp:
 
         predictions = self.model.predict(X, verbose=0)[0]
         top3_indices = np.argsort(predictions)[-3:][::-1]
-        top3_labels = self.label_encoder.inverse_transform(top3_indices)
+        
+        classes_list = list(self.label_encoder.classes_)
+        top3_labels = []
+        for idx in top3_indices:
+            if idx < len(classes_list):
+                top3_labels.append(classes_list[idx])
+            elif idx < len(self.vocabulary):
+                top3_labels.append(self.vocabulary[idx])
+            else:
+                top3_labels.append(f"gesture_{idx+1}")
+
         top3_confidences = predictions[top3_indices]
 
         # Require at least 45% confidence to display prediction
@@ -640,8 +650,20 @@ class SignLanguageDesktopApp:
             conn.commit()
             conn.close()
 
-            messagebox.showinfo("Video Saved", f"Gesture video successfully saved to dataset!\nPath: {self.rec_file_path}")
+            messagebox.showinfo("Video Saved", f"Gesture video '{label}' successfully saved to dataset!\nPath: {self.rec_file_path}")
             self.set_status(f"Saved gesture '{label}' to database.")
+            
+            # Sync new label to label encoder & vocabulary
+            if label and hasattr(self, 'label_encoder') and label not in list(self.label_encoder.classes_):
+                new_cls = sorted(list(set(list(self.label_encoder.classes_) + [label])))
+                self.label_encoder.classes_ = np.array(new_cls)
+                joblib.dump(self.label_encoder, "app/model/label_encoder.pkl")
+                self.vocabulary = list(self.label_encoder.classes_)
+                if hasattr(self, 'lst_vocab'):
+                    self.lst_vocab.delete(0, tk.END)
+                    for item in self.vocabulary:
+                        self.lst_vocab.insert(tk.END, f"• {item.capitalize()}")
+
             self.refresh_gallery()
 
     # ==========================================
