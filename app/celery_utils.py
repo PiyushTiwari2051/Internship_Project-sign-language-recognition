@@ -1,19 +1,23 @@
-from celery import Celery
+try:
+    from celery import Celery
+except ImportError:
+    class DummyConf:
+        def update(self, *args, **kwargs):
+            pass
+
+    class DummyCelery:
+        def __init__(self):
+            self.conf = DummyConf()
+
+        def task(self, *args, **kwargs):
+            def decorator(f):
+                return f
+            return decorator
+
+    Celery = None
 
 
-def make_celery(app=None):
-    celery = Celery(__name__)
-    if app:
-        celery.conf.update(
-            broker_url=app.config["CELERY_BROKER_URL"],
-            result_backend=app.config["CELERY_RESULT_BACKEND"],
-        )
-
-        class ContextTask(celery.Task):
-            def __call__(self, *args, **kwargs):
-                with app.app_context():
-                    return self.run(*args, **kwargs)
-
-        celery.Task = ContextTask
-
-    return celery
+def make_celery(app_name=__name__):
+    if Celery is not None:
+        return Celery(app_name)
+    return DummyCelery()

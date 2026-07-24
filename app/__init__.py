@@ -5,7 +5,7 @@ from app.config import Config
 from app.celery_utils import make_celery
 
 celery = make_celery()
-
+db = SQLAlchemy()
 
 # Flask app instance
 def create_app():
@@ -22,10 +22,10 @@ def create_app():
     # Import parts of the app and create database tables
     with app.app_context():
         from app import routes, models, forms
-        db.create_all()
-        print("Database tables initialized successfully.")
+        try:
+            db.create_all()
+            print("Database tables initialized successfully.")
+        except Exception as e:
+            print("DB init warning:", e)
 
     return app
-
-
-db = SQLAlchemy()

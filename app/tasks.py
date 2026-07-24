@@ -2,11 +2,10 @@ import os
 import cv2
 import mediapipe as mp
 
-from app import celery, db, create_app
+from app import celery, db
 from app.models import Video, FrameLandmark  # DB Models
 from app.utils.feature_extraction import save_video_features
-
-flask_app = create_app()
+from flask import current_app
 
 
 @celery.task(bind=True)
@@ -17,7 +16,7 @@ def process_video_landmarks(self, video_id, mirror=True, start_time=0.0, end_tim
     Her landmark'ı FrameLandmark tablosuna yazar, update_state ile ilerleme bildirir.
     """
 
-    with flask_app.app_context():
+    with current_app.app_context():
         # get video and path
         video = Video.query.get(video_id)
         if not video or not os.path.exists(video.path):

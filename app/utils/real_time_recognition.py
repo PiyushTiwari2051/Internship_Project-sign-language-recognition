@@ -4,17 +4,30 @@ Real-time Sign Language Recognition using MediaPipe and LSTM model
 Flask-compatible version for web streaming
 """
 
-import cv2
 import numpy as np
-import mediapipe as mp
 import json
 import joblib
 from collections import deque
-import keras
-from keras.models import load_model
 import warnings
 import threading
 import time
+
+try:
+    import cv2
+except ImportError:
+    cv2 = None
+
+try:
+    import mediapipe as mp
+except ImportError:
+    mp = None
+
+try:
+    import keras
+    from keras.models import load_model
+except ImportError:
+    keras = None
+    load_model = None
 
 warnings.filterwarnings("ignore")
 
@@ -29,19 +42,29 @@ class RealTimeSignLanguageRecognizer:
         cam_id=2,  # Default camera ID (0 for default camera)
     ):
         # Load model and preprocessing tools
-        print("Loading model and preprocessing tools...")
-        custom_objs = {
-            'Orthogonal': keras.initializers.Orthogonal,
-            'GlorotUniform': keras.initializers.GlorotUniform,
-            'Zeros': keras.initializers.Zeros,
-            'Ones': keras.initializers.Ones,
-        }
-        self.model = load_model(model_path, custom_objects=custom_objs)
-        self.scaler = joblib.load(scaler_path)
-        self.label_encoder = joblib.load(label_encoder_path)
+        if load_model is not None and os.path.exists(model_path):
+            try:
+                custom_objs = {
+                    'Orthogonal': keras.initializers.Orthogonal,
+                    'GlorotUniform': keras.initializers.GlorotUniform,
+                    'Zeros': keras.initializers.Zeros,
+                    'Ones': keras.initializers.Ones,
+                }
+                self.model = load_model(model_path, custom_objects=custom_objs)
+            except Exception as e:
+                print("Model load warning:", e)
+                self.model = None
+        else:
+            self.model = None
 
-        with open(feature_order_path, "r") as f:
-            self.feature_order = json.load(f)
+        self.scaler = joblib.load(scaler_path) if os.path.exists(scaler_path) else None
+        self.label_encoder = joblib.load(label_encoder_path) if os.path.exists(label_encoder_path) else None
+
+        if os.path.exists(feature_order_path):
+            with open(feature_order_path, "r") as f:
+                self.feature_order = json.load(f)
+        else:
+            self.feature_order = []
 
         # MediaPipe setup - will be initialized when starting
         self.mp_hands = mp.solutions.hands
