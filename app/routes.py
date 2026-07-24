@@ -10,8 +10,15 @@ from flask import (
     current_app as app,
     Response,
 )
-from celery.result import AsyncResult
-import cv2
+try:
+    from celery.result import AsyncResult
+except ImportError:
+    AsyncResult = None
+
+try:
+    import cv2
+except ImportError:
+    cv2 = None
 
 from app import db
 from app.models import Video, FrameLandmark  # DB Models
